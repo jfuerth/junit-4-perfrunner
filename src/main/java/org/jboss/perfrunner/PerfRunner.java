@@ -1,14 +1,17 @@
 package org.jboss.perfrunner;
 
+import java.io.FileNotFoundException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
+import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.Suite;
 import org.junit.runners.model.FrameworkMethod;
@@ -30,6 +33,8 @@ public class PerfRunner extends Suite {
    * @author Jonathan Fuerth <jfuerth@gmail.com>
    */
   private static class VaryingParametersTestRunner extends BlockJUnit4ClassRunner {
+
+    private final PerformanceReportBuilder performanceReportBuilder = new PerformanceReportBuilder();
 
     VaryingParametersTestRunner(Class<?> type) throws InitializationError {
       super(type);
@@ -62,6 +67,76 @@ public class PerfRunner extends Suite {
       }
       return testMethods;
     }
+
+    @Override
+    protected void validateTestMethods(List<Throwable> errors) {
+      List<FrameworkMethod> methods = getTestClass().getAnnotatedMethods(Test.class);
+      for (FrameworkMethod fm : methods) {
+        fm.validatePublicVoid(false, errors);
+        Method m = fm.getMethod();
+        for (int p = 0; p < m.getParameterTypes().length; p++) {
+          try {
+            Class<?> ptype = m.getParameterTypes()[p];
+
+            if (ptype != Integer.TYPE) {
+              throw new InitializationError(
+                  "Method " + m.getName() + " parameter " + p + " is of type " + ptype + ", but only int is supported.");
+            }
+
+            Varying varying = getSoleVaryingAnnotation(m, p); // if more than one @Varying, this will throw InitializationError
+            int[] values = valuesOf(varying);
+            if (values.length == 0) {
+              throw new InitializationError("Method " + m.getName() + " parameter " + p + " has 0 possible variations");
+            }
+
+          } catch (Exception e) {
+            errors.add(e);
+          }
+        }
+      }
+    }
+
+    @Override
+    protected Description describeChild(FrameworkMethod method) {
+      ParameterizedFrameworkMethod pmethod = (ParameterizedFrameworkMethod) method;
+
+      // collect the method and parameter annotations for the benefit of the reporting listener
+      List<Annotation> annotations = new ArrayList<Annotation>();
+      Collections.addAll(annotations, method.getAnnotations());
+      for (Annotation[] paramAnnotation : method.getMethod().getParameterAnnotations()) {
+        Collections.addAll(annotations, paramAnnotation);
+      }
+
+      return Description.createTestDescription(
+          getTestClass().getJavaClass(),
+          testName(method) + Arrays.toString(pmethod.getParameters()),
+          annotations.toArray(new Annotation[annotations.size()]));
+    }
+
+    @Override
+    public void run(RunNotifier notifier) {
+      Description description = getDescription();
+      try {
+        performanceReportBuilder.testRunStarted(description);
+        super.run(notifier);
+      } catch (FileNotFoundException e) {
+        throw new RuntimeException("Failed to create PerfRunner report output file", e);
+      } finally {
+        performanceReportBuilder.testRunFinished(null);
+      }
+    }
+
+    // TODO: this is wedged in here. there must be a better way!
+    @Override
+    protected void runChild(FrameworkMethod method, RunNotifier notifier) {
+      Description description = describeChild(method);
+      performanceReportBuilder.testStarted(description);
+      super.runChild(method, notifier);
+      performanceReportBuilder.testFinished(description);
+    }
+
+    // Utility methods below here.
+    // TODO move most of the following into a new ParameterSet class
 
     /**
      * Increments the first value in pointers, rolling it back to 0 and carrying
@@ -121,43 +196,6 @@ public class PerfRunner extends Suite {
       }
 
       return values;
-    }
-
-    @Override
-    protected Description describeChild(FrameworkMethod method) {
-      ParameterizedFrameworkMethod pmethod = (ParameterizedFrameworkMethod) method;
-      return Description.createTestDescription(
-          getTestClass().getJavaClass(),
-          testName(method) + Arrays.toString(pmethod.getParameters()),
-          method.getAnnotations());
-    }
-
-    @Override
-    protected void validateTestMethods(List<Throwable> errors) {
-      List<FrameworkMethod> methods = getTestClass().getAnnotatedMethods(Test.class);
-      for (FrameworkMethod fm : methods) {
-        fm.validatePublicVoid(false, errors);
-        Method m = fm.getMethod();
-        for (int p = 0; p < m.getParameterTypes().length; p++) {
-          try {
-            Class<?> ptype = m.getParameterTypes()[p];
-
-            if (ptype != Integer.TYPE) {
-              throw new InitializationError(
-                  "Method " + m.getName() + " parameter " + p + " is of type " + ptype + ", but only int is supported.");
-            }
-
-            Varying varying = getSoleVaryingAnnotation(m, p); // if more than one @Varying, this will throw InitializationError
-            int[] values = valuesOf(varying);
-            if (values.length == 0) {
-              throw new InitializationError("Method " + m.getName() + " parameter " + p + " has 0 possible variations");
-            }
-
-          } catch (Exception e) {
-            errors.add(e);
-          }
-        }
-      }
     }
 
     /**
