@@ -10,6 +10,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface Varying {
+  public String name();
+  public Axis axis() default Axis.SERIES;
   public int from() default 1;
   public int to() default 1;
   public int step() default 1;

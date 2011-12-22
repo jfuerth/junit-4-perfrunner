@@ -1,5 +1,6 @@
 package org.jboss.perfrunner;
 
+import static org.jboss.perfrunner.Axis.X;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -32,8 +33,9 @@ public class MultiThreadUsageExampleTest {
 
   @Test
   public void fillArrayBlockingQueue(
-      @Varying(from=1, to=10) int threadCount,
-      @Varying(from=100000, to=1000000, step=100000) int entryCount) throws InterruptedException, ExecutionException {
+      @Varying(name="Threads", from=1, to=10) int threadCount,
+      @Varying(name="List Size", axis=X, from=100000, to=1000000, step=100000) int entryCount)
+          throws InterruptedException, ExecutionException {
 
     final Collection<Integer> list = new ArrayBlockingQueue<Integer>(entryCount);
 
@@ -75,8 +77,8 @@ public class MultiThreadUsageExampleTest {
 
   @Test
   public void printArguments(
-      @Varying(from=1, to=10) int threadCount,
-      @Varying(from=0, to=1000000, step=100000) int entryCount) {
+      @Varying(name="Arg 1", from=1, to=10) int threadCount,
+      @Varying(name="Arg 2", axis=X, from=0, to=1000000, step=100000) int entryCount) {
     System.out.println("  printArguments("+threadCount+","+entryCount+")");
   }
 }

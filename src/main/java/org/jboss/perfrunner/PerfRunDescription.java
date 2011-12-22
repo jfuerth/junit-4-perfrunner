@@ -1,5 +1,6 @@
 package org.jboss.perfrunner;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +16,7 @@ class PerfRunDescription {
   private final String className;
   private final String methodName;
   private final List<Double> paramValues;
+  private final List<Varying> varyingAnnotations;
 
   public PerfRunDescription(Description d) {
     className = d.getClassName();
@@ -31,6 +33,15 @@ class PerfRunDescription {
       valueList.add(Double.valueOf(vm.group()));
     }
     this.paramValues = Collections.unmodifiableList(valueList);
+
+    List<Varying> varyingAnnotations = new ArrayList<Varying>();
+    // this assumes a promise that the @Varying annotations appear in the same order as the values appear in the method name
+    for (Annotation a : d.getAnnotations()) {
+      if (a instanceof Varying) {
+        varyingAnnotations.add((Varying) a);
+      }
+    }
+    this.varyingAnnotations = Collections.unmodifiableList(varyingAnnotations);
   }
 
   public String getClassName() {
@@ -46,5 +57,13 @@ class PerfRunDescription {
    */
   public List<Double> getParamValues() {
     return paramValues;
+  }
+
+  /**
+   * Returns an unmodifiable list of the Varying annotations that apply to each
+   * parameter of the test method.
+   */
+  public List<Varying> getParamAnnotations() {
+    return varyingAnnotations;
   }
 }
