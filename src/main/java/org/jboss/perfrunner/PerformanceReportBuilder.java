@@ -291,7 +291,8 @@ public class PerformanceReportBuilder extends RunListener {
      */
     public void appendJavascriptTo(Appendable sb, int chartNum) throws IOException {
       sb.append("\n<h1>" + className + "." + methodName + "</h1>\n");
-      sb.append("<div id=chart" + chartNum + " style='width: 800px; height: 600px'></div>\n");
+      sb.append("<div id=chart" + chartNum + " style='width: 800px; height: 600px; float: left'></div>\n");
+      sb.append("<div id=legend" + chartNum + " style='float: left'></div>\n");
       sb.append("<script type='text/javascript'>\n");
       sb.append("$(function() {\n");
       sb.append(" $.plot($('#chart" + chartNum + "'), ");
@@ -309,9 +310,11 @@ public class PerformanceReportBuilder extends RunListener {
       sb.append("\n]\n");
 
       // chart options
-      sb.append(", { series: { points: {show: true}, lines: {show: true} }, legend: { hideable: true } }");
+      sb.append(", {\n");
+      sb.append("    series: { points: {show: true}, lines: {show: true} },\n");
+      sb.append("    legend: { hideable: true, container: '#legend" + chartNum + "', noColumns: 2 }\n");
 
-      sb.append(");\n");
+      sb.append("  });\n");
       sb.append("});\n");
       sb.append("</script>\n");
       chartNum++;
