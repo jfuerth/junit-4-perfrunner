@@ -10,8 +10,7 @@ public class ExamplePerformanceTest {
 
   @Test
   public void testSleep(
-      @Varying(axis=Axis.X, name="Sleep Time", from=0, to=100, step=5) int sleepTime,
-      @Varying(axis=Axis.SERIES, name="This will appear in the legend") int x
+      @Varying(axis=Axis.X, name="Sleep Time", from=0, to=100, step=5) int sleepTime
       ) throws InterruptedException {
     Thread.sleep(sleepTime);
   }
@@ -22,7 +21,16 @@ public class ExamplePerformanceTest {
       @Varying(axis=Axis.SERIES, name="Calls to sleep()", from=1, to=10) int calls
       ) throws InterruptedException {
     for (int i = 0; i < calls; i++) {
-      Thread.sleep((sleepTime/calls));
+
+      // deal with the remainder by adding extra time on the last iteration
+      int extra;
+      if (i == calls - 1) {
+        extra = sleepTime % calls;
+      } else {
+        extra = 0;
+      }
+
+      Thread.sleep((sleepTime / calls) + extra);
     }
   }
 

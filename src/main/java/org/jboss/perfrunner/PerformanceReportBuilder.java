@@ -179,7 +179,14 @@ public class PerformanceReportBuilder extends RunListener {
      * @param sb target for the generated JavaScript
      */
     public void appendTo(Appendable sb) throws IOException {
-      sb.append("\n { data: [");
+      sb.append("\n {");
+
+      // only label the series if we have something to call it. :)
+      if (key.paramValues.size() > 0) {
+        sb.append("label: \"").append(key.toString()).append("\", ");
+      }
+
+      sb.append("data: [");
       boolean first = true;
       for (Point p : points) {
         if (!first) {
@@ -188,7 +195,7 @@ public class PerformanceReportBuilder extends RunListener {
         p.appendTo(sb);
         first = false;
       }
-      sb.append("], label: \"").append(key.toString()).append("\" }");
+      sb.append("]}");
     }
   }
 
@@ -231,11 +238,6 @@ public class PerformanceReportBuilder extends RunListener {
       if (xAxisParam == -1) {
         throw new IllegalStateException(
             "No x-axis parameter was specified for test " + desc.getClassName() + "." + desc.getMethodName());
-      }
-
-      if (seriesParams.isEmpty()) {
-        throw new IllegalStateException(
-            "No series parameter was specified for test " + desc.getClassName() + "." + desc.getMethodName());
       }
 
       this.pageAxisParams = Collections.unmodifiableList(pageAxisParams);
@@ -290,9 +292,11 @@ public class PerformanceReportBuilder extends RunListener {
     public void appendJavascriptTo(Appendable sb, int chartNum) throws IOException {
       sb.append("\n<h1>" + className + "." + methodName + "</h1>\n");
       sb.append("<div id=chart" + chartNum + " style='width: 800px; height: 600px'></div>\n");
-      sb.append("<script language=javascript>\n");
+      sb.append("<script type='text/javascript'>\n");
       sb.append("$(function() {\n");
       sb.append(" $.plot($('#chart" + chartNum + "'), ");
+
+      // chart data series
       sb.append("[");
       boolean first = true;
       for (Series s : series.values()) {
@@ -303,6 +307,10 @@ public class PerformanceReportBuilder extends RunListener {
         first = false;
       }
       sb.append("\n]\n");
+
+      // chart options
+      sb.append(", { series: { points: {show: true}, lines: {show: true} }, legend: { hideable: true } }");
+
       sb.append(");\n");
       sb.append("});\n");
       sb.append("</script>\n");
@@ -339,8 +347,9 @@ public class PerformanceReportBuilder extends RunListener {
     out.println("<html>");
     out.println("<head>");
     out.println(" <title>" + reportTitle + "</title>");
-    out.println(" <script language=javascript src='jquery.js'></script>");
-    out.println(" <script language=javascript src='jquery.flot.js'></script>");
+    out.println(" <script type='text/javascript' src='jquery.js'></script>");
+    out.println(" <script type='text/javascript' src='jquery.flot.js'></script>");
+    out.println(" <script type='text/javascript' src='jquery.flot.hiddengraphs.js'></script>");
     out.println("</head>");
     out.println("<body>");
     out.println(" <h1>" + reportTitle + "</h1>");
@@ -353,7 +362,8 @@ public class PerformanceReportBuilder extends RunListener {
 
   @Override
   public void testFinished(Description description) {
-    long testDuration = System.nanoTime() - startTime;
+    // compute the test duration in milliseconds
+    double testDuration = (System.nanoTime() - startTime) / 1000000.0;
 
     try {
       PerfRunDescription desc = new PerfRunDescription(description);

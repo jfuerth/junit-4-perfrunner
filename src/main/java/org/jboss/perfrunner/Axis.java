@@ -6,7 +6,9 @@ public enum Axis {
    * should be combined with variation in all other SERIES parameters to produce
    * the name of a data series on the report.
    * <p>
-   * At least one varying parameter to a given method must be marked as SERIES.
+   * Any number of varying parameters (including 0) to a given method can be
+   * marked as SERIES. If no parameters are marked as SERIES, the chart will have
+   * just one line and no legend will appear.
    */
   SERIES,
 
