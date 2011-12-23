@@ -1,0 +1,48 @@
+body {
+	font-family: 'Gill Sans', 'Tahoma', sans-serif;
+	margin-left: 15pt;
+	color: #333;
+}
+
+/* h1 is for the page heading (test class name) */
+h1 {
+	font-size: 36pt;
+}
+
+p.generatedBy, p.generatedOn {
+	text-align: right;
+    font-size: 10pt;
+    color: #666;
+}
+
+h2, h3, h4 {
+	clear: both;  /* have to clear the preceding chart divs, which both float */
+}
+
+/* h2 is for the test method name, and has an embedded span for the package name */
+h2 {
+	padding-top: 30pt;
+	font-size: 28pt;
+}
+
+h2 span.packageName {
+	display: run-in;
+	font-size: 10pt;
+	color: #666;
+}
+
+/* h3 is for the page name (only exists within tests that specify a page axis parameter) */
+h3 {
+    padding-top: 20pt;
+    font-size: 12pt;
+}
+
+/* these divs house the flot chart and its legend */
+div.chart, div.legend {
+	float: left;
+}
+
+div.chart {
+	width: 800px;
+	height: 600px;
+}

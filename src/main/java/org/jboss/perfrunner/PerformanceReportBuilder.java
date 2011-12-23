@@ -91,18 +91,48 @@ public class PerformanceReportBuilder extends RunListener {
    * The unique identifier for a Series. Instances are immutable. Suitable for
    * use as a key in a hash collection.
    */
-  private static class SeriesKey {
+  private static class Key {
+
+    /**
+     * Creates the Key for a page or series from the given run description.
+     * <p>
+     * Note that this could be refactored in the future to return a list (or
+     * set) of keys based on the axis annotations present in the run
+     * description. This would be better because it could support an arbitrary
+     * number of axes.
+     *
+     * @param desc
+     *          The descriptor for a particular invocation of a test method.
+     * @param paramIndexes
+     *          To create a page key, pass in the list of parameter indexes that
+     *          were annotated with axis=PAGE; to create the key for a series,
+     *          pass in the list of parameter indexes that were annotated with
+     *          axis=SERIES.
+     * @return a Key value representing the page or series key this method
+     *         invocation belongs to.
+     */
+    public static Key create(PerfRunDescription desc, List<Integer> paramIndexes) {
+      List<ParamValue> paramValues = new ArrayList<ParamValue>();
+      for (int i : paramIndexes) {
+        paramValues.add(new ParamValue(
+            desc.getParamAnnotations().get(i).name(),
+            desc.getParamValues().get(i)));
+      }
+      Key key = new Key(paramValues);
+      return key;
+    }
+
     private final List<ParamValue> paramValues;
 
     /**
-     * Creates a new series key based on the given param values.
+     * Creates a new key (for a page or a series) based on the given param values.
      *
      * @param paramValues
      *          the collection of parameter values that define this series. A
      *          copy is made of this list, so you are free to modify the one
      *          that you passed in.
      */
-    public SeriesKey(List<ParamValue> paramValues) {
+    public Key(List<ParamValue> paramValues) {
       this.paramValues = new ArrayList<ParamValue>(paramValues);
     }
     @Override
@@ -121,7 +151,7 @@ public class PerformanceReportBuilder extends RunListener {
         return false;
       if (getClass() != obj.getClass())
         return false;
-      SeriesKey other = (SeriesKey) obj;
+      Key other = (Key) obj;
       if (paramValues == null) {
         if (other.paramValues != null)
           return false;
@@ -162,10 +192,10 @@ public class PerformanceReportBuilder extends RunListener {
    * line on the performance chart.
    */
   private static class Series {
-    private final SeriesKey key;
+    private final Key key;
     private final List<Point> points = new ArrayList<Point>();
 
-    public Series(SeriesKey key) {
+    public Series(Key key) {
       this.key = key;
     }
 
@@ -199,13 +229,19 @@ public class PerformanceReportBuilder extends RunListener {
     }
   }
 
+  /**
+   * Represents the data accumulated from all invocations of a particular test method.
+   * This will correspond to one or more charts in the output file.
+   *
+   * @author Jonathan Fuerth <jfuerth@gmail.com>
+   */
   private static class MethodRunData {
-    private final Map<SeriesKey, Series> series = new LinkedHashMap<SeriesKey, Series>();
+    private final Map<Key, Map<Key, Series>> pageSeriesMap = new LinkedHashMap<Key, Map<Key, Series>>();
     private final String className;
     private final String methodName;
 
     private int xAxisParam = -1;
-    private List<Integer> pageAxisParams; // TODO: respect these!
+    private List<Integer> pageAxisParams;
     private List<Integer> seriesParams;
 
     public MethodRunData(PerfRunDescription desc) {
@@ -260,19 +296,20 @@ public class PerformanceReportBuilder extends RunListener {
      *          probably introduce annotations for requesting other metrics.
      */
     public void addTestRunData(PerfRunDescription desc, double yValue) {
-      if (!isSameChart(desc)) throw new IllegalArgumentException("Given description is for data that doesn't belong on this chart");
+      if (!isSameChart(desc)) throw new IllegalArgumentException("The given description is for data that doesn't belong on this chart");
 
-      List<ParamValue> paramValues = new ArrayList<ParamValue>();
-      for (int i : seriesParams) {
-        paramValues.add(new ParamValue(
-            desc.getParamAnnotations().get(i).name(),
-            desc.getParamValues().get(i)));
+      Key pageKey = Key.create(desc, pageAxisParams);
+      Map<Key, Series> seriesMap = pageSeriesMap.get(pageKey);
+      if (seriesMap == null) {
+        seriesMap = new LinkedHashMap<Key, Series>();
+        pageSeriesMap.put(pageKey, seriesMap);
       }
-      SeriesKey key = new SeriesKey(paramValues);
-      Series s = series.get(key);
+
+      Key seriesKey = Key.create(desc, seriesParams);
+      Series s = seriesMap.get(seriesKey);
       if (s == null) {
-        s = new Series(key);
-        series.put(key, s);
+        s = new Series(seriesKey);
+        seriesMap.put(seriesKey, s);
       }
 
       s.addPoint(desc.getParamValues().get(xAxisParam), yValue);
@@ -290,34 +327,43 @@ public class PerformanceReportBuilder extends RunListener {
      *           if appending to {@code sb} fails.
      */
     public void appendJavascriptTo(Appendable sb, int chartNum) throws IOException {
-      sb.append("\n<h1>" + className + "." + methodName + "</h1>\n");
-      sb.append("<div id=chart" + chartNum + " style='width: 800px; height: 600px; float: left'></div>\n");
-      sb.append("<div id=legend" + chartNum + " style='float: left'></div>\n");
-      sb.append("<script type='text/javascript'>\n");
-      sb.append("$(function() {\n");
-      sb.append(" $.plot($('#chart" + chartNum + "'), ");
+      sb.append("\n<h2><span class=packageName>" + className + ".</span>" + methodName + "</h2>\n");
 
-      // chart data series
-      sb.append("[");
-      boolean first = true;
-      for (Series s : series.values()) {
-        if (!first) {
-          sb.append(",");
+      for (Map.Entry<Key, Map<Key, Series>> e : pageSeriesMap.entrySet()) {
+        Key pageKey = e.getKey();
+        Map<Key, Series> series = e.getValue();
+
+        if (pageKey.paramValues.size() > 0) {
+          sb.append("<h3>" + pageKey.toString() + "</h3>");
         }
-        s.appendTo(sb);
-        first = false;
+        sb.append("<div class=chart id=chart" + chartNum + "></div>\n");
+        sb.append("<div class=legend id=legend" + chartNum + "></div>\n");
+        sb.append("<script type='text/javascript'>\n");
+        sb.append("$(function() {\n");
+        sb.append(" $.plot($('#chart" + chartNum + "'), ");
+
+        // chart data series
+        sb.append("[");
+        boolean first = true;
+        for (Series s : series.values()) {
+          if (!first) {
+            sb.append(",");
+          }
+          s.appendTo(sb);
+          first = false;
+        }
+        sb.append("\n]\n");
+
+        // chart options
+        sb.append(", {\n");
+        sb.append("    series: { points: {show: true}, lines: {show: true} },\n");
+        sb.append("    legend: { hideable: true, container: '#legend" + chartNum + "', noColumns: 2 }\n");
+
+        sb.append("  });\n");
+        sb.append("});\n");
+        sb.append("</script>\n");
+        chartNum++;
       }
-      sb.append("\n]\n");
-
-      // chart options
-      sb.append(", {\n");
-      sb.append("    series: { points: {show: true}, lines: {show: true} },\n");
-      sb.append("    legend: { hideable: true, container: '#legend" + chartNum + "', noColumns: 2 }\n");
-
-      sb.append("  });\n");
-      sb.append("});\n");
-      sb.append("</script>\n");
-      chartNum++;
     }
   }
 
@@ -345,17 +391,19 @@ public class PerformanceReportBuilder extends RunListener {
   @Override
   public void testRunStarted(Description description) throws FileNotFoundException {
     out = new PrintWriter("perfrunner-" + description.getClassName() + ".html");
-    String reportTitle = "PerfRunner report: " + description.getDisplayName() + " (generated on " + new Date() + ")";
     out.println("<!DOCTYPE html>");
     out.println("<html>");
     out.println("<head>");
-    out.println(" <title>" + reportTitle + "</title>");
+    out.println(" <title>" + description.getDisplayName() + "</title>");
+    out.println(" <link rel=stylesheet type='text/css' href='perfrunner-style.css'></script>");
     out.println(" <script type='text/javascript' src='jquery.js'></script>");
     out.println(" <script type='text/javascript' src='jquery.flot.js'></script>");
     out.println(" <script type='text/javascript' src='jquery.flot.hiddengraphs.js'></script>");
     out.println("</head>");
     out.println("<body>");
-    out.println(" <h1>" + reportTitle + "</h1>");
+    out.println(" <h1>" + description.getDisplayName() + "</h1>");
+    out.println(" <p class=generatedBy>Generated by <a href='https://github.com/fuerth/junit-4-perfrunner'>PerfRunner</a></p>");
+    out.println(" <p class=generatedOn>On " + new Date() + "</p>");
   }
 
   @Override

@@ -13,8 +13,8 @@ Create a test class like this, and give it to JUnit 4.x:
 
       @Test
       public void demonstrationTest(
-          @Varying(from=1, to=10) int threadCount,
-          @Varying(from=100000, to=1000000, step=100000) int entryCount) {
+          @Varying(name="Threads", from=1, to=10) int threadCount,
+          @Varying(name="List Size", axis=Axis.X, from=100000, to=1000000, step=100000) int entryCount) {
 
           // code here that relies on threadCount and entryCount
       }
@@ -26,10 +26,21 @@ threadCount and entryCount that you'd expect. In the above example, demonstratio
 would be called a total of 100 times.
 
 
+Recent Developments
+-------------------
+
+ * Added reporting capabilities by writing out HTML files that use flot to plot charts
+   when displayed in the browser.
+   * You can toggle the visibility of a series by clicking its entry in the legend
+   * currently just a POC because the generated files depend on external JS and CSS files
+
+
 The Future
 ----------
 
-Next on the list is to add reporting capabilities. Although the test runner itself is
-useful as-is (because JUnit keeps track of how long each test took to execute), I'd
-like to see performance charts produced based on the timing data collected for each
-collection of test method runs.
+ * Labels for chart axes (needs 3rd party flot extension)
+ * package flot, minimize it, and embed it in the generated HTML
+   * also embed the CSS file
+ * make the report generator configurable using system properties
+ * publish the test runner to Maven Central
+ * allow the option of multiple identical runs, possibly in random order; aggregate min/max/avg before reporting
