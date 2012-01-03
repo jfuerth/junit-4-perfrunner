@@ -7,12 +7,17 @@ body {
 /* h1 is for the page heading (test class name) */
 h1 {
 	font-size: 36pt;
+	float: left;
 }
 
-p.generatedBy, p.generatedOn {
+div.testRunInfo {
+	float:right;
+}
+
+div.testRunInfo > * {
 	text-align: right;
-    font-size: 10pt;
-    color: #666;
+	font-size: 10pt;
+	color: #666;
 }
 
 h2, h3, h4 {
@@ -25,9 +30,9 @@ h2 {
 	font-size: 28pt;
 }
 
-h2 span.packageName {
+span.packageName {
 	display: run-in;
-	font-size: 10pt;
+	font-size: 40%;
 	color: #666;
 }
 
