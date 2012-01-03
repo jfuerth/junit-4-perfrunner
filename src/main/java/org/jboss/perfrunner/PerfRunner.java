@@ -151,6 +151,8 @@ public class PerfRunner extends Suite {
      *         0.
      */
     private boolean countUp(int[] pointers, int[][] values) {
+      if (pointers.length == 0) return false;
+
       int pos = 0;
       boolean carry;
       do {
