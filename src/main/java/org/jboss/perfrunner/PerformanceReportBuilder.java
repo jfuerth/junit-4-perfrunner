@@ -25,7 +25,7 @@ import org.junit.runner.notification.RunListener;
  *
  * @author Jonathan Fuerth <jfuerth@gmail.com>
  */
-public class PerformanceReportBuilder extends RunListener {
+class PerformanceReportBuilder extends RunListener {
 
   /**
    * A method parameter name and the value that was given for it during a
@@ -171,10 +171,10 @@ public class PerformanceReportBuilder extends RunListener {
    */
   private static class Point {
     private final double x;
-    private final double y;
-    public Point(double x, double y) {
+    private final RunStats runStats;
+    public Point(double x, RunStats runStats) {
       this.x = x;
-      this.y = y;
+      this.runStats = runStats;
     }
 
     /**
@@ -183,7 +183,9 @@ public class PerformanceReportBuilder extends RunListener {
      * @param sb target for the generated JavaScript
      */
     public void appendTo(Appendable sb) throws IOException {
-      sb.append("[").append(String.valueOf(x)).append(",").append(String.valueOf(y)).append("]");
+      sb.append("[").append(String.valueOf(x)).append(",").append(String.valueOf(runStats.timeMillis())).append(",");
+      runStats.appendTo(sb);
+      sb.append("]");
     }
   }
 
@@ -199,8 +201,8 @@ public class PerformanceReportBuilder extends RunListener {
       this.key = key;
     }
 
-    public void addPoint(double x, double y) {
-      points.add(new Point(x, y));
+    public void addPoint(double x, RunStats runStats) {
+      points.add(new Point(x, runStats));
     }
 
     /**
@@ -290,12 +292,11 @@ public class PerformanceReportBuilder extends RunListener {
      * @param desc
      *          Description of this method invocation. Must correspond with the
      *          same descrption given to this MethodRunData's constructor.
-     * @param yValue
-     *          The Y-axis value to plot for this invocation. Initially, the
-     *          only supported y-axis value is time. In the future, we'll
-     *          probably introduce annotations for requesting other metrics.
+     * @param runStats
+     *          Statistical information about the test invocation (for example,
+     *          elapsed time and GC activity).
      */
-    public void addTestRunData(PerfRunDescription desc, double yValue) {
+    public void addTestRunData(PerfRunDescription desc, RunStats runStats) {
       if (!isSameChart(desc)) throw new IllegalArgumentException("The given description is for data that doesn't belong on this chart");
 
       Key pageKey = Key.create(desc, pageAxisParams);
@@ -312,7 +313,7 @@ public class PerformanceReportBuilder extends RunListener {
         seriesMap.put(seriesKey, s);
       }
 
-      s.addPoint(desc.getParamValues().get(xAxisParam), yValue);
+      s.addPoint(desc.getParamValues().get(xAxisParam), runStats);
     }
 
     /**
@@ -336,6 +337,7 @@ public class PerformanceReportBuilder extends RunListener {
         if (pageKey.paramValues.size() > 0) {
           sb.append("<h3>" + pageKey.toString() + "</h3>");
         }
+        sb.append("<div class=chartStats id=chartStats" + chartNum + ">&nbsp;</div>\n");
         sb.append("<div class=chart id=chart" + chartNum + "></div>\n");
         sb.append("<div class=legend id=legend" + chartNum + "></div>\n");
         sb.append("<script type='text/javascript'>\n");
@@ -357,8 +359,17 @@ public class PerformanceReportBuilder extends RunListener {
         // chart options
         sb.append(", {\n");
         sb.append("    series: { points: {show: true}, lines: {show: true} },\n");
-        sb.append("    legend: { hideable: true, container: '#legend" + chartNum + "', noColumns: 2 }\n");
-
+        sb.append("    legend: { hideable: true, container: '#legend" + chartNum + "', noColumns: 2 },\n");
+        sb.append("    grid: { hoverable: true }\n");
+        sb.append("  });\n");
+        sb.append("  $('#chart" + chartNum + "').bind('plothover', function (event, pos, item) {\n");
+        sb.append("    if (item) {\n");
+        sb.append("      var runStats = item.series.data[item.dataIndex][2];\n");
+        sb.append("      var statsHtml = '';\n");
+        sb.append("      if (item.series.name) { statsHtml += '<span class=seriesName>' + item.series.name + '</span>:'; }\n");
+        sb.append("      for (stat in runStats) { statsHtml += ' ' + stat + ': <span class=statValue>' + runStats[stat] + '</span>' }\n");
+        sb.append("      $('#chartStats" + chartNum + "').html(statsHtml);\n");
+        sb.append("    }\n");
         sb.append("  });\n");
         sb.append("});\n");
         sb.append("</script>\n");
@@ -373,9 +384,9 @@ public class PerformanceReportBuilder extends RunListener {
   private PrintWriter out;
 
   /**
-   * Time the most recent test started.
+   * System stats as of the time when the most recent test started.
    */
-  private long startTime;
+  private RunStats statsAtStart;
 
   /**
    * Object that is accumulating run data for the current method.
@@ -419,13 +430,12 @@ public class PerformanceReportBuilder extends RunListener {
 
   @Override
   public void testStarted(Description description) {
-    startTime = System.nanoTime();
+    statsAtStart = RunStats.create();
   }
 
   @Override
   public void testFinished(Description description) {
-    // compute the test duration in milliseconds
-    double testDuration = (System.nanoTime() - startTime) / 1000000.0;
+    RunStats runStats = statsAtStart.relativeToNow();
 
     try {
       PerfRunDescription desc = new PerfRunDescription(description);
@@ -441,7 +451,7 @@ public class PerformanceReportBuilder extends RunListener {
       }
 
       // in all cases, we add this observation
-      runData.addTestRunData(desc, testDuration);
+      runData.addTestRunData(desc, runStats);
 
     } catch (IOException e) {
       throw new RuntimeException(e);

@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import org.junit.runners.model.FrameworkMethod;
 
-public class ParameterizedFrameworkMethod extends FrameworkMethod {
+class ParameterizedFrameworkMethod extends FrameworkMethod {
 
   private final Integer[] params;
 

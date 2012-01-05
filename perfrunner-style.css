@@ -51,3 +51,7 @@ div.chart {
 	width: 800px;
 	height: 600px;
 }
+
+span.seriesName, span.statValue {
+	font-weight: bold;
+}
