@@ -67,12 +67,12 @@
     var drawnOnce = false;
 
     function init(plot) {
-        var labelHidden = ' [hidden]';
+        var labelHidden = '<br>[hidden]';
 
         function findPlotSeries(label) {
             var plotdata = plot.getData();
             for (var i = 0; i < plotdata.length; i++) {
-                if (plotdata[i].label == label) {
+                if (plotdata[i].label.replace('<br>', '') == label) {
                     return plotdata[i];
                 }
             }
