@@ -1,6 +1,6 @@
 package org.jboss.perfrunner;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -119,8 +119,8 @@ public class PerfRunner extends Suite {
       try {
         performanceReportBuilder.testRunStarted(description);
         super.run(notifier);
-      } catch (FileNotFoundException e) {
-        throw new RuntimeException("Failed to create PerfRunner report output file", e);
+      } catch (IOException e) {
+        throw new RuntimeException("PerfRunner report generation failed", e);
       } finally {
         performanceReportBuilder.testRunFinished(null);
       }
