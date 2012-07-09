@@ -1,7 +1,10 @@
-package org.jboss.perfrunner;
+package org.jboss.perfrunner.example;
 
 import java.util.Random;
 
+import org.jboss.perfrunner.Axis;
+import org.jboss.perfrunner.PerfRunner;
+import org.jboss.perfrunner.Varying;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
