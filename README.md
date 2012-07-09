@@ -32,15 +32,16 @@ Recent Developments
  * Added reporting capabilities by writing out HTML files that use flot to plot charts
    when displayed in the browser.
    * You can toggle the visibility of a series by clicking its entry in the legend
-   * currently just a POC because the generated files depend on external JS and CSS files
+   * currently just a POC because the generated files embed unminified, uncustomizable JS and CSS resources
 
 
 The Future
 ----------
 
  * Labels for chart axes (needs 3rd party flot extension)
- * package flot, minimize it, and embed it in the generated HTML
-   * also embed the CSS file
+ * Combine and minify jQuery and flot before embedding in the generated HTML
  * make the report generator configurable using system properties
- * publish the test runner to Maven Central
+   * allow linking to JS and CSS rather than embedding them
+   * allow embedding of user-supplied JS and CSS resources
+ * publish this project to Maven Central
  * allow the option of multiple identical runs, possibly in random order; aggregate min/max/avg before reporting
