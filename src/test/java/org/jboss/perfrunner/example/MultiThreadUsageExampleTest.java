@@ -1,4 +1,4 @@
-package org.jboss.perfrunner;
+package org.jboss.perfrunner.example;
 
 import static org.jboss.perfrunner.Axis.X;
 import static org.junit.Assert.assertEquals;
@@ -13,6 +13,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.jboss.perfrunner.PerfRunner;
+import org.jboss.perfrunner.Varying;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,12 +75,5 @@ public class MultiThreadUsageExampleTest {
     exec.awaitTermination(1, TimeUnit.DAYS);
 
     assertEquals(entryCount, list.size());
-  }
-
-  @Test
-  public void printArguments(
-      @Varying(name="Arg 1", from=1, to=10) int threadCount,
-      @Varying(name="Arg 2", axis=X, from=0, to=1000000, step=100000) int entryCount) {
-    System.out.println("  printArguments("+threadCount+","+entryCount+")");
   }
 }

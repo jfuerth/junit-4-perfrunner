@@ -40,11 +40,6 @@ public class ExamplePerformanceTest {
   /**
    * Demonstrates introduction of a page axis to declutter the results by
    * breaking it out into multiple charts.
-   *
-   * @param sleepTime
-   * @param calls
-   * @param randomness
-   * @throws InterruptedException
    */
   @Test
   public void testMultiSleepWithRandom(

@@ -1,5 +1,8 @@
-package org.jboss.perfrunner;
+package org.jboss.perfrunner.example;
 
+import org.jboss.perfrunner.Axis;
+import org.jboss.perfrunner.PerfRunner;
+import org.jboss.perfrunner.Varying;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -13,7 +16,7 @@ public class SmallTest {
 
   @Test
   public void tenDataPoints(
-      @Varying(name="Sleep Time", axis=Axis.X, to=10) int sleepTime) throws Exception {
-    Thread.sleep(0, sleepTime);
+      @Varying(name="Sleep Time", axis=Axis.X, from=10, to=100, step=10) int sleepTime) throws Exception {
+    Thread.sleep(sleepTime);
   }
 }
