@@ -3,9 +3,32 @@
   <groupId>org.jboss.perfrunner</groupId>
   <artifactId>junit-4-perfrunner</artifactId>
   <version>1.0-SNAPSHOT</version>
+  
   <name>JUnit 4 PerfRunner</name>
-  <description>A JUnit test runner that measures performance in repeated test runs given varying parameter values.</description>
-
+  
+  <description>
+    A JUnit test runner that measures performance in repeated test runs given
+    varying parameter values. Produces nice looking HTML reports.
+  </description>
+  
+  <inceptionYear>2011</inceptionYear>
+  
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  
+  <developers>
+    <developer>
+      <name>Jonathan Fuerth</name>
+      <email>jfuerth@redhat.com</email>
+      <organization>JBoss, by Red Hat</organization>
+    </developer>
+  </developers>
+  
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -44,4 +67,11 @@
     </snapshotRepository>
   </distributionManagement>
 
+  <organization>
+    <name>JBoss, by Red Hat</name>
+    <url>http://jboss.org/</url>
+  </organization>
+  <scm>
+    <url>https://github.com/jfuerth/junit-4-perfrunner</url>
+  </scm>
 </project>
