@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.jboss.perfrunner.example;
+package net.bluecow.perfrunner.example;
 
 import static org.junit.Assert.assertEquals;
+import net.bluecow.perfrunner.Axis;
+import net.bluecow.perfrunner.PerfRunner;
+import net.bluecow.perfrunner.Varying;
 
-import org.jboss.perfrunner.Axis;
-import org.jboss.perfrunner.PerfRunner;
-import org.jboss.perfrunner.Varying;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

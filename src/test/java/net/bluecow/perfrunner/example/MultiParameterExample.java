@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.jboss.perfrunner.example;
+package net.bluecow.perfrunner.example;
 
-import static org.jboss.perfrunner.Axis.X;
+import static net.bluecow.perfrunner.Axis.X;
+import net.bluecow.perfrunner.PerfRunner;
+import net.bluecow.perfrunner.Varying;
 
-import org.jboss.perfrunner.PerfRunner;
-import org.jboss.perfrunner.Varying;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

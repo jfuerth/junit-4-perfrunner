@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jboss.perfrunner;
+package net.bluecow.perfrunner;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;

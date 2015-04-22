@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package org.jboss.perfrunner;
+package net.bluecow.perfrunner;
 
 import static org.junit.Assert.assertEquals;
+import net.bluecow.perfrunner.PerfRunDescription;
 
 import org.junit.Test;
 import org.junit.runner.Description;

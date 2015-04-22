@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.jboss.perfrunner.example;
+package net.bluecow.perfrunner.example;
 
-import static org.jboss.perfrunner.Axis.X;
+import static net.bluecow.perfrunner.Axis.X;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -29,8 +29,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.perfrunner.PerfRunner;
-import org.jboss.perfrunner.Varying;
+import net.bluecow.perfrunner.PerfRunner;
+import net.bluecow.perfrunner.Varying;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

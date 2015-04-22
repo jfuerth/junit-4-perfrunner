@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.jboss.perfrunner</groupId>
+  <groupId>net.bluecow.perfrunner</groupId>
   <artifactId>junit-4-perfrunner</artifactId>
   <version>1.0-SNAPSHOT</version>
   
@@ -24,8 +24,7 @@
   <developers>
     <developer>
       <name>Jonathan Fuerth</name>
-      <email>jfuerth@redhat.com</email>
-      <organization>JBoss, by Red Hat</organization>
+      <email>jfuerth@gmail.com</email>
     </developer>
   </developers>
   
@@ -63,23 +62,6 @@
     </plugins>
   </build>
 
-  <distributionManagement>
-    <repository>
-      <id>jboss-releases-repository</id>
-      <name>JBoss Releases Repository</name>
-      <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</url>
-    </repository>
-    <snapshotRepository>
-      <id>jboss-snapshots-repository</id>
-      <name>JBoss Snapshots Repository</name>
-      <url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
-    </snapshotRepository>
-  </distributionManagement>
-
-  <organization>
-    <name>JBoss, by Red Hat</name>
-    <url>http://jboss.org/</url>
-  </organization>
   <scm>
     <url>https://github.com/jfuerth/junit-4-perfrunner</url>
   </scm>

@@ -8,7 +8,7 @@ Usage
 
 Create a test class like this, and give it to JUnit 4.x:
 
-    import org.jboss.perfrunner.*;
+    import net.bluecow.perfrunner.*;
     import org.junit.Test;
     import org.junit.runner.RunWith;
     
@@ -23,13 +23,13 @@ Create a test class like this, and give it to JUnit 4.x:
     }
 
 When run, the method tenDataPoints() will be called ten times: with the sleepTime parameter
-set to 10, 20, 30, ..., 100. The resulting report looks [like this](http://jfuerth.github.com/junit-4-perfrunner/perfrunner-org.jboss.perfrunner.example.SmallTest.html).
+set to 10, 20, 30, ..., 100. The resulting report looks [like this](http://jfuerth.github.com/junit-4-perfrunner/perfrunner-net.bluecow.perfrunner.example.SmallTest.html).
 
 You can use as many parameters as you like. When you include multiple parameters, PerfRunner calls your method with every
 possible combination of the given arguments (their Cartesian Product). For example, the following test:
 
-    import static org.jboss.perfrunner.Axis.X;
-    import org.jboss.perfrunner.*;
+    import static net.bluecow.perfrunner.Axis.X;
+    import net.bluecow.perfrunner.*;
     import org.junit.Test;
     import org.junit.runner.RunWith;
     
@@ -69,7 +69,7 @@ When you have multiple parameters, sometimes you will want to produce a series o
 chart with a thousand different data series on it. You can do this by assigning one of your @Varying parameters
 to the PAGE axis. See ExamplePerformanceTest.testMultiSleepWithRandom()
 [(source)](https://github.com/jfuerth/junit-4-perfrunner/blob/master/src/test/java/org/jboss/perfrunner/example/ExamplePerformanceTest.java#L40)
-[(output)](http://jfuerth.github.com/junit-4-perfrunner/perfrunner-org.jboss.perfrunner.example.ExamplePerformanceTest.html)
+[(output)](http://jfuerth.github.com/junit-4-perfrunner/perfrunner-net.bluecow.perfrunner.example.ExamplePerformanceTest.html)
 for details.
 
 That's all you need to know. Happy testing!

@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-package org.jboss.perfrunner;
+package net.bluecow.perfrunner;
+
+import net.bluecow.perfrunner.Axis;
+import net.bluecow.perfrunner.PerfRunner;
+import net.bluecow.perfrunner.Varying;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

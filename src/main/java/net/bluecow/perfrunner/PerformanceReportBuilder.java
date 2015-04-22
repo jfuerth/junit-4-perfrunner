@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jboss.perfrunner;
+package net.bluecow.perfrunner;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

@@ -1,4 +1,4 @@
-package org.jboss.perfrunner.example;
+package net.bluecow.perfrunner.example;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -8,9 +8,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
 
-import org.jboss.perfrunner.Axis;
-import org.jboss.perfrunner.PerfRunner;
-import org.jboss.perfrunner.Varying;
+import net.bluecow.perfrunner.Axis;
+import net.bluecow.perfrunner.PerfRunner;
+import net.bluecow.perfrunner.Varying;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
