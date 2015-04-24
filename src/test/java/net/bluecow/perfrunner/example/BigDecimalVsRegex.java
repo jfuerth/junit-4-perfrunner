@@ -43,6 +43,7 @@ public class BigDecimalVsRegex {
   public void bigDecimal(
           @Varying(axis=Axis.X, name="Digits", from=1, to=40) int digits,
           @Varying(axis=Axis.PAGE, name="Iterations", from=10000, to=10000) int iterations) {
+
     List<BigDecimal> results = new ArrayList<BigDecimal>();
     for (int i = 0; i < iterations; i++) {
       results.add(new BigDecimal(randomNumber(digits)));
@@ -54,6 +55,7 @@ public class BigDecimalVsRegex {
   public void regularExpression(
           @Varying(axis=Axis.X, name="Digits", from=1, to=40) int digits,
           @Varying(axis=Axis.PAGE, name="Iterations", from=10000, to=10000) int iterations) {
+
     List<String> results = new ArrayList<String>();
     for (int i = 0; i < iterations; i++) {
       String randomNumber = randomNumber(digits);
